@@ -1,6 +1,6 @@
 # arpeggio
 
-__Define chords (simultaneously pressed keys) for speedy typing!__
+__Define chords (simultaneously pressed keys) for speedy typing!__ [__Video demo__](https://www.youtube.com/watch?v=Bn0Z0vqBTmQ).
 
 This plugin is heavily inspired by [kana/vim-arpeggio](https://github.com/kana/vim-arpeggio).
 
