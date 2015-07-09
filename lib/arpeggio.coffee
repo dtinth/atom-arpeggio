@@ -9,7 +9,7 @@ module.exports = Arpeggio =
 
   matchChords: (historyString) ->
     maxChordLength = Math.max((key.length for key of @chords)...)
-    for i in [maxChordLength..2] by -1
+    for i in [Math.min(historyString.length, maxChordLength)..2] by -1
       key = _.sortBy(historyString.substr(-i)).join('')
       result = @chords[key]
       if result
@@ -30,40 +30,48 @@ module.exports = Arpeggio =
     mapping = { }
     if config and typeof config is 'object'
       for own key, expansion of config
-        key = _.sortBy(_.uniq(_.toArray(key.toUpperCase()))).join('')
+        key = _.sortBy(_.uniq(_.toArray(key))).join('')
         mapping[key] = expansion
     @chords = mapping
 
   enableChords: (editor) ->
     view = atom.views.getView(editor)
     history = []
-    onKeyDown = (event) =>
-      return if event.ctrlKey or event.shiftKey or event.metaKey
-      if 65 <= event.keyCode <= 90
+    onKeyPress = (event) =>
+      if event.charCode
         history.push
-          char: String.fromCharCode(event.keyCode)
+          char: String.fromCharCode(event.charCode)
+          keyIdentifier: event.keyIdentifier
           timeStamp: event.timeStamp
       else
         history.length = 0
-      while history.length > 1 and history[0].timeStamp < history[1].timeStamp - 64
-        history.shift()
+
+    onKeyUp = (event) =>
       historyString = (char for { char } in history).join('')
       match = @matchChords(historyString)
       if match
-        setTimeout ->
-          editor.selectLeft(match.length)
-          editor.insertText(match.expansion)
-    onKeyUp = (event) =>
-      return if event.ctrlKey or event.shiftKey or event.metaKey
-      if 65 <= event.keyCode <= 90
-        pressedKey = String.fromCharCode(event.keyCode)
-        history = history.filter ({ char }) -> char isnt pressedKey
-    view.addEventListener 'keydown', onKeyDown
+        history.length = 0
+        console.log('Match.length is ', match)
+        editor.selectLeft(match.length)
+        editor.insertText('', undo: 'skip')
+        @trigger(editor, view, match.expansion)
+      history = history.filter ({ keyIdentifier }) -> keyIdentifier isnt event.keyIdentifier
+    view.addEventListener 'keypress', onKeyPress
     view.addEventListener 'keyup', onKeyUp
     @subscriptions.add
       dispose: ->
-        view.removeEventListener 'keydown', onKeyDown
+        view.removeEventListener 'keypress', onKeyPress
         view.removeEventListener 'keyup', onKeyUp
+
+  trigger: (editor, view, expansion) ->
+    if typeof expansion is 'string'
+      editor.insertText(expansion)
+    else if expansion and typeof expansion is 'object'
+      if expansion.command
+        atom.commands.dispatch(view, expansion.command)
+      if expansion.snippet
+        snippets = atom.packages.getActivePackage('snippets').mainModule
+        snippets.insert(expansion.snippet)
 
   deactivate: ->
     @subscriptions.dispose()

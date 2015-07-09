@@ -1,8 +1,8 @@
 {
   "name": "arpeggio",
   "main": "./lib/arpeggio",
-  "version": "1.0.0",
-  "description": "Define chords for quicker typing.",
+  "version": "0.0.0",
+  "description": "Define chords (simultaneously pressed keys) for speedy typing.",
   "keywords": [
   ],
   "activationCommands": {
