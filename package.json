@@ -1,0 +1,18 @@
+{
+  "name": "arpeggio",
+  "main": "./lib/arpeggio",
+  "version": "1.0.0",
+  "description": "Define chords for quicker typing.",
+  "keywords": [
+  ],
+  "activationCommands": {
+  },
+  "repository": "https://github.com/dtinth/atom-arpeggio",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "underscore-plus": "^1.6.6"
+  }
+}
