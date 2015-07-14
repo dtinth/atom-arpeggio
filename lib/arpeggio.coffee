@@ -19,6 +19,18 @@ module.exports = Arpeggio =
         }
     return null
 
+  validateMatch: (match, history) ->
+    { expansion } = match
+    if expansion and expansion.timeout
+      lastTimeStamp = null
+      for { timeStamp } in history.slice(-match.length)
+        if lastTimeStamp isnt null and timeStamp > lastTimeStamp + expansion.timeout
+          return false
+        lastTimeStamp = timeStamp
+      return true
+    else
+      return true
+
   activate: (state) ->
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'arpeggio.chords', (chords) =>
@@ -49,9 +61,8 @@ module.exports = Arpeggio =
     onKeyUp = (event) =>
       historyString = (char for { char } in history).join('')
       match = @matchChords(historyString)
-      if match
+      if match and @validateMatch(match, history)
         history.length = 0
-        console.log('Match.length is ', match)
         editor.selectLeft(match.length)
         editor.insertText('', undo: 'skip')
         @trigger(editor, view, match.expansion)
@@ -65,13 +76,14 @@ module.exports = Arpeggio =
 
   trigger: (editor, view, expansion) ->
     if typeof expansion is 'string'
-      editor.insertText(expansion)
-    else if expansion and typeof expansion is 'object'
-      if expansion.command
-        atom.commands.dispatch(view, expansion.command)
-      if expansion.snippet
-        snippets = atom.packages.getActivePackage('snippets').mainModule
-        snippets.insert(expansion.snippet)
+      expansion = { text: expansion }
+    if expansion.command
+      atom.commands.dispatch(view, expansion.command)
+    if expansion.text
+      editor.insertText(expansion.text)
+    if expansion.snippet
+      snippets = atom.packages.getActivePackage('snippets').mainModule
+      snippets.insert(expansion.snippet)
 
   deactivate: ->
     @subscriptions.dispose()

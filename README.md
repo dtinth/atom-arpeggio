@@ -88,3 +88,28 @@ you will get an empty curly braces block, with the cursor positioned at the `$1`
 
 
 ### Share your chords [in the wiki!](https://github.com/dtinth/atom-arpeggio/wiki)
+
+
+## Configuration Reference
+
+```cson
+"*":
+  arpeggio:
+    chords:
+      <trigger>: <expansion>
+```
+
+- The `trigger` is a string of keys that is used to trigger.
+- The `expansion` is an expansion object or a string for simple text expansion.
+
+
+### Expansion Object
+
+An expansion is a text with the following keys:
+
+| Key | Type | Description |
+| --- | ---- | ----------- |
+| `text` | Action | The text to expand to. |
+| `snippet` | Action | The snippet source to expand to. |
+| `command` | Action | The command to invoke. |
+| `timeout` | Option | The timeout in milliseconds. The keys in this particular chord must be pressed successively within the specified timeout in order for the chord to be triggered. This is useful when the chord is often accidentally triggered during normal typing. |
