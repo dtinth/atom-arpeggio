@@ -63,9 +63,10 @@ module.exports = Arpeggio =
       match = @matchChords(historyString)
       if match and @validateMatch(match, history)
         history.length = 0
-        editor.selectLeft(match.length)
-        editor.insertText('', undo: 'skip')
-        @trigger(editor, view, match.expansion)
+        editor.transact =>
+          editor.selectLeft(match.length)
+          editor.insertText('')
+          @trigger(editor, view, match.expansion)
       history = history.filter ({ keyIdentifier }) -> keyIdentifier isnt event.keyIdentifier
     view.addEventListener 'keypress', onKeyPress
     view.addEventListener 'keyup', onKeyUp
